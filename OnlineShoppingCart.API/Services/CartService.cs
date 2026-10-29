@@ -1,9 +1,9 @@
-﻿namespace OnlineShopping.Domain.Cart.Business.Services;
+﻿namespace OnlineShopping.Api.Services;
 
-using Entities;
+using OnlineShopping.Domain.Cart.Business.Entities;
 using OnlineShopping.Domain.Cart.Business.Interfaces;
 
-public class CartService
+public class CartService : ICartService
 {
     private readonly ICartRepository _cartRepository;
 
