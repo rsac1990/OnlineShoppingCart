@@ -1,4 +1,5 @@
 using OnlineShopping.Api.Services;
+using OnlineShopping.Domain.Cart.Business.Interfaces;
 using OnlineShopping.Domain.Catalog.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 var app = builder.Build();
