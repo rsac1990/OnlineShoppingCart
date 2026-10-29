@@ -1,8 +1,6 @@
 namespace OnlineShoppingCart.Api.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OnlineShopping.Domain.Cart.Data;
 using OnlineShopping.Domain.Catalog.Entities;
 using OnlineShopping.Domain.Catalog.Interfaces;
 
@@ -124,11 +122,11 @@ public class CategoriesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"An error ocurred when saving the category {category.Id}");
+            _logger.LogError(ex, $"An error ocurred when deleting the category {id}");
             return StatusCode(500, new
             {
                 success = false,
-                message = $"An error ocurred when saving the category {category.Id}"
+                message = $"An error ocurred when deleting the category {id}"
             });
         }
     }
