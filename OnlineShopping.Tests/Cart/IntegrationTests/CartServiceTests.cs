@@ -1,4 +1,4 @@
-﻿namespace TestProject.IntegrationTests;
+﻿namespace TestProject.Cart.IntegrationTests;
 
 using System.Threading.Tasks;
 using FluentAssertions;

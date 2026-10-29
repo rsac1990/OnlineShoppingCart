@@ -1,4 +1,4 @@
-namespace OnlineShopping.Tests.OnlineShopping.Domain.Catalog.IntegrationTests;
+namespace TestProject.Catalog.IntegrationTests;
 
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

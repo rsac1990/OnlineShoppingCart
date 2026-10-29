@@ -1,4 +1,4 @@
-namespace TestProject.UnitTests.Bussiness.Entities;
+namespace TestProject.Cart.UnitTests.Bussiness.Entities;
 
 using FluentAssertions;
 using NUnit.Framework;

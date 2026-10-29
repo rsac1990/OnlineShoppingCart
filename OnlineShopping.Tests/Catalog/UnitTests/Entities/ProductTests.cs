@@ -1,4 +1,4 @@
-namespace OnlineShopping.Tests.OnlineShopping.Domain.Catalog.UnitTests.Entities;
+namespace TestProject.Catalog.UnitTests.Entities;
 
 using FluentAssertions;
 using NUnit.Framework;
