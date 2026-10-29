@@ -1,7 +1,7 @@
-﻿namespace OnlineShopping.Task1.Business.Services;
+﻿namespace OnlineShopping.Domain.Cart.Business.Services;
 
 using Entities;
-using OnlineShopping.Task1.Business.Interfaces;
+using OnlineShopping.Domain.Cart.Business.Interfaces;
 
 public class CartService
 {

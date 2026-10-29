@@ -1,4 +1,4 @@
-﻿namespace OnlineShopping.Task1.Business.Entities;
+﻿namespace OnlineShopping.Domain.Cart.Business.Entities;
 
 public class Item : Entity
 {

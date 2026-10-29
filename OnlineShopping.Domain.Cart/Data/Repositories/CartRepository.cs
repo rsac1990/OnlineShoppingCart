@@ -1,8 +1,8 @@
-﻿namespace OnlineShopping.Task1.Data.Repositories;
+﻿namespace OnlineShopping.Domain.Cart.Data.Repositories;
 
 using MongoDB.Driver;
-using OnlineShopping.Task1.Business.Entities;
-using OnlineShopping.Task1.Business.Interfaces;
+using OnlineShopping.Domain.Cart.Business.Entities;
+using OnlineShopping.Domain.Cart.Business.Interfaces;
 
 public class CartRepository : ICartRepository
 {

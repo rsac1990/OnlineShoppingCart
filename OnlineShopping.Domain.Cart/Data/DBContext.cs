@@ -1,7 +1,7 @@
-﻿namespace OnlineShopping.Task1.Data;
+﻿namespace OnlineShopping.Domain.Cart.Data;
 
 using MongoDB.Driver;
-using OnlineShopping.Task1.Business.Entities;
+using OnlineShopping.Domain.Cart.Business.Entities;
 using MongoDB.Bson.Serialization;
 
 public class DBContext

@@ -1,7 +1,7 @@
-﻿namespace OnlineShopping.Task1.Business.Interfaces;
+﻿namespace OnlineShopping.Domain.Cart.Business.Interfaces;
 
 using System.Threading.Tasks;
-using OnlineShopping.Task1.Business.Entities;
+using OnlineShopping.Domain.Cart.Business.Entities;
 
 public interface ICartRepository
 {
