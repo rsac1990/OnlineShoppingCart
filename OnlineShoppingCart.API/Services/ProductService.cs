@@ -1,9 +1,9 @@
 ﻿namespace OnlineShopping.Domain.Catalog.Services;
 
-using Entities;
-using Interfaces;
+using Domain.Catalog.Entities;
+using Domain.Catalog.Interfaces;
 
-public class ProductService
+public class ProductService : IProductService
 {
     private IRepository<Product> _productRepository;
 
@@ -12,10 +12,10 @@ public class ProductService
         _productRepository = productRepository;
     }
 
-    public async Task<List<Product>> GetAllAsync()=>
+    public async Task<List<Product>> GetAllAsync() =>
         await _productRepository.GetAllAsync() ?? new List<Product>();
 
-    public async Task<Product> GetAsync(int id) =>
+    public async Task<Product?> GetAsync(int id) =>
         await _productRepository.GetAsync(id);
 
     public async Task AddAsync(Product newProduct) =>
