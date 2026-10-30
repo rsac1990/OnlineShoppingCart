@@ -1,4 +1,4 @@
-﻿namespace OnlineShopping.Domain.Catalog.Interfaces;
+﻿namespace OnlineShopping.Api.Interfaces;
 
 using OnlineShopping.Domain.Catalog.Entities;
 
