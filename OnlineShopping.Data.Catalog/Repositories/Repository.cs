@@ -25,33 +25,18 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
         return await _dbSet.FindAsync(id);
     }
 
-    public async Task AddAsync(TEntity entity)
+    public async Task AddAsync(TEntity newEntity)
     {
-        await _dbSet.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        await _dbSet.AddAsync(newEntity);
     }
 
-    public async Task UpdateAsync(int id, TEntity entity)
+    public void Remove(TEntity entity)
     {
-        var existingEntity = await _dbSet.FindAsync(id);
-
-        if (existingEntity is null)
-        {
-            throw new ArgumentException($"Entidad con el {id} no encontrada.");
-        }
-
-        entity.Id = id;
-        _context.Entry(existingEntity).CurrentValues.SetValues(entity);
-        await _context.SaveChangesAsync();
+        _dbSet.Remove(entity);
     }
 
-    public async Task RemoveAsync(int id)
+    public async Task<bool> SaveChangesAsync()
     {
-        var entity = await GetAsync(id);
-        if (entity != null)
-        {
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
-        }
+        return await _context.SaveChangesAsync() > 0;
     }
 }
