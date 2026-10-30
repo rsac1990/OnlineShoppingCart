@@ -15,15 +15,12 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
         _dbSet = context.Set<TEntity>();
     }
 
-    public async Task<List<TEntity>> GetAllAsync()
-    {
-        return await _dbSet.ToListAsync();
-    }
+    public async Task<List<TEntity>> GetAllAsync() =>
+        await _dbSet.ToListAsync();
 
-    public async Task<TEntity?> GetAsync(int id)
-    {
-        return await _dbSet.FindAsync(id);
-    }
+
+    public async Task<TEntity?> GetAsync(int id) =>
+        await _dbSet.FindAsync(id);
 
     public async Task AddAsync(TEntity newEntity)
     {
@@ -35,8 +32,7 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
         _dbSet.Remove(entity);
     }
 
-    public async Task<bool> SaveChangesAsync()
-    {
-        return await _context.SaveChangesAsync() > 0;
-    }
+    public async Task<bool> SaveChangesAsync() =>
+        await _context.SaveChangesAsync() > 0;
+
 }
