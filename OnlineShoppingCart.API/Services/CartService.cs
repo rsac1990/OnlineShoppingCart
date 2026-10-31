@@ -1,7 +1,7 @@
 ﻿namespace OnlineShopping.Api.Services;
 
-using OnlineShopping.Domain.Cart.Business.Entities;
-using OnlineShopping.Domain.Cart.Business.Interfaces;
+using Domain.Cart.Business.Entities;
+using Domain.Cart.Business.Interfaces;
 
 public class CartService : ICartService
 {

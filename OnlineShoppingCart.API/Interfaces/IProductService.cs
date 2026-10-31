@@ -1,6 +1,6 @@
 ﻿namespace OnlineShopping.Api.Interfaces;
 
-using OnlineShopping.Domain.Catalog.Entities;
+using Domain.Catalog.Entities;
 
 public interface IProductService
 {

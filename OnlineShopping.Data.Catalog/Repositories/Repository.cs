@@ -1,8 +1,8 @@
 ﻿namespace OnlineShopping.Data.Catalog.Repositories;
 
+using Domain.Catalog.Entities;
+using Domain.Catalog.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using OnlineShopping.Domain.Catalog.Entities;
-using OnlineShopping.Domain.Catalog.Interfaces;
 
 public class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
 {

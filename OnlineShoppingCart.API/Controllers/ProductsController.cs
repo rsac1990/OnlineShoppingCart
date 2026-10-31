@@ -1,8 +1,8 @@
 ﻿namespace OnlineShopping.Api.Controllers;
 
+using Domain.Catalog.Entities;
+using Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using OnlineShopping.Api.Interfaces;
-using OnlineShopping.Domain.Catalog.Entities;
 
 [ApiController]
 [Route("[controller]")]
