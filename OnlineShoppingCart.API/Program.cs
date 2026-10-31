@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Mongo2Go;
 using OnlineShopping.Api.Interfaces;
@@ -18,9 +19,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 1. Register your Catalog AppDbContext (replace "DefaultConnection" with your actual connection string name from appsettings.json)
+// Create and open a persistent SQLite in-memory connection
+var sqliteConnection = new SqliteConnection("DataSource=:memory:");
+sqliteConnection.Open();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("OnlineShoppingCatalogDb"));
+    options.UseSqlite(sqliteConnection));
 
 // 1. Start the ephemeral MongoDB runner for your practice app
 // 1. Start the ephemeral MongoDB runner
@@ -46,6 +50,12 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
