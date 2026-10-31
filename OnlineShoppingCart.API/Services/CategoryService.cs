@@ -4,6 +4,8 @@ using Domain.Catalog;
 using Domain.Catalog.Entities;
 using Domain.Catalog.Interfaces;
 using Interfaces;
+using Dtos;
+using OnlineShopping.Api.Extensions;
 
 public class CategoryService : ICategoryService
 {
@@ -14,16 +16,19 @@ public class CategoryService : ICategoryService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<List<Category>> GetAllAsync() =>
-        await _categoryRepository.GetAllAsync() ?? new List<Category>();
+    public async Task<List<CategoryDto>> GetAllAsync()
+    {
+        var categories = await _categoryRepository.GetAllAsync();
+        return categories.ToDtoList().ToList() ?? new List<CategoryDto>();
+    }
 
-    public async Task<OperationResult> AddAsync(Category category)
+    public async Task<OperationResult> AddAsync(CategoryDto categoryDto)
     {
         try
         {
-            var newCategory = new Category(category.Name);
-            newCategory.SetParentCategory(category.ParentCategoryId);
-            newCategory.SetImage(category.Image);
+            var newCategory = new Category(categoryDto.Name);
+            newCategory.SetParentCategory(categoryDto.ParentCategoryId);
+            newCategory.SetImage(categoryDto.Image);
 
             await _categoryRepository.AddAsync(newCategory);
             await _categoryRepository.SaveChangesAsync();
@@ -37,7 +42,7 @@ public class CategoryService : ICategoryService
 
     }
 
-    public async Task<OperationResult> UpdateAsync(int id, Category cat)
+    public async Task<OperationResult> UpdateAsync(int id, CategoryDto categoryDto)
     {
         var existingCategory = await _categoryRepository.GetAsync(id);
         if (existingCategory == null)
@@ -47,9 +52,9 @@ public class CategoryService : ICategoryService
 
         try
         {
-            existingCategory.Update(cat.Name);
-            existingCategory.SetParentCategory(cat.ParentCategoryId);
-            existingCategory.SetImage(cat.Image);
+            existingCategory.Update(categoryDto.Name);
+            existingCategory.SetParentCategory(categoryDto.ParentCategoryId);
+            existingCategory.SetImage(categoryDto.Image);
 
             await _categoryRepository.SaveChangesAsync();
 

@@ -1,6 +1,6 @@
 namespace OnlineShopping.Api.Controllers;
 
-using Domain.Catalog.Entities;
+using Dtos;
 using Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,20 +9,30 @@ using Microsoft.AspNetCore.Mvc;
 public class CategoriesController : ControllerBase
 {
     private readonly ICategoryService _categoryService;
+    private readonly LinkGenerator _linkGenerator;
     private readonly ILogger<CategoriesController> _logger;
 
-    public CategoriesController(ICategoryService categoryService, ILogger<CategoriesController> logger)
+    public CategoriesController(ICategoryService categoryService,
+                                LinkGenerator linkGenerator,
+                                ILogger<CategoriesController> logger)
     {
         _categoryService = categoryService;
+        _linkGenerator = linkGenerator;
         _logger = logger;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Category>>> GetList()
+    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetList()
     {
         try
         {
             var categories = await _categoryService.GetAllAsync();
+
+            foreach (var category in categories)
+            {
+                GenerateLinks(category);
+            }
+
             return Ok(categories);
         }
         catch (Exception ex)
@@ -33,12 +43,12 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Category category)
+    public async Task<IActionResult> Add([FromBody] CategoryDto category)
     {
         try
         {
             var result = await _categoryService.AddAsync(category);
-            
+
             if (result.ErrorType == ErrorType.Validation)
             {
                 return BadRequest(result.ErrorMessage);
@@ -54,7 +64,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, Category category)
+    public async Task<IActionResult> Update(int id, CategoryDto category)
     {
         try
         {
@@ -105,6 +115,33 @@ public class CategoriesController : ControllerBase
         {
             success = false,
             message = $"Error en el servidor, contactar al administrador del sitio"
+        });
+    }
+
+    private void GenerateLinks(CategoryDto category)
+    {
+        var controllerName = GetType().Name.Replace("Controller", "");
+
+        category.Links.Add(new LinkDto
+        {
+            Href = _linkGenerator.GetUriByAction(
+                HttpContext,
+                action: nameof(Update),
+                controller: controllerName,
+                values: new { id = category.Id }) ?? string.Empty,
+            Rel = "update",
+            Method = "PUT"
+        });
+
+        category.Links.Add(new LinkDto
+        {
+            Href = _linkGenerator.GetUriByAction(
+                HttpContext,
+                action: nameof(Delete),
+                controller: controllerName,
+                values: new { id = category.Id }) ?? string.Empty,
+            Rel = "delete",
+            Method = "DELETE"
         });
     }
 }
