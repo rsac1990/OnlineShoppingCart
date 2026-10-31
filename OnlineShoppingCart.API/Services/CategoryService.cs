@@ -1,10 +1,10 @@
 ﻿namespace OnlineShopping.Api.Services;
 
 using System.Threading.Tasks;
+using Domain.Catalog;
 using Domain.Catalog.Entities;
 using Domain.Catalog.Interfaces;
-using OnlineShopping.Api.Interfaces;
-using OnlineShopping.Domain.Catalog;
+using Interfaces;
 
 public class CategoryService : ICategoryService
 {
