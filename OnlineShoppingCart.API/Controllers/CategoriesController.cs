@@ -1,8 +1,9 @@
 namespace OnlineShoppingCart.Api.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
+using OnlineShopping.Api;
+using OnlineShopping.Api.Interfaces;
 using OnlineShopping.Domain.Catalog.Entities;
-using OnlineShopping.Domain.Catalog.Interfaces;
 
 [ApiController]
 [Route("[controller]")]
@@ -27,37 +28,8 @@ public class CategoriesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error ocurred when retrieving the Categories");
-            return StatusCode(500, new
-            {
-                success = false,
-                message = $"An error occurred while retrieving categories: {ex.Message}"
-            });
-        }
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Category>> Get(int id)
-    {
-        try
-        {
-            var category = await _categoryService.GetAsync(id);
-
-            if (category is null)
-            {
-                return NotFound($"Category with id {id} not found.");
-            }
-
-            return Ok(category);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"An error ocurred when retrieving the Category {id}");
-            return StatusCode(500, new
-            {
-                success = false,
-                message = $"An error occurred while retrieving categories: {ex.Message}"
-            });
+            _logger.LogError(ex, $"Error al obtener la información: {ex.Message}");
+            return ServerError();
         }
     }
 
@@ -66,68 +38,74 @@ public class CategoriesController : ControllerBase
     {
         try
         {
-            await _categoryService.AddAsync(category);
-            return Ok("Category added successfully");
+            var result = await _categoryService.AddAsync(category);
+            
+            if (result.ErrorType == ErrorType.Validation)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            return Ok("Categoría agregada con éxito");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"An error ocurred when adding the category {category.Id}");
-            return StatusCode(500, new
-            {
-                success = false,
-                message = $"An error ocurred when adding the category {category.Id}"
-            });
+            _logger.LogError(ex, $"Error al guardar la información: {ex.Message}");
+            return ServerError();
         }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, Category category)
     {
-        if (id != category.Id)
-        {
-            return BadRequest();
-        }
-
         try
         {
-            await _categoryService.UpdateAsync(id, category);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"An error ocurred when saving the category {category.Id}");
+            var result = await _categoryService.UpdateAsync(id, category);
 
-            return StatusCode(500, new
-            {
-                success = false,
-                message = $"An error ocurred when saving the category {category.Id}"
-            });
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTodoItem(int id)
-    {
-        try
-        {
-            var category = await _categoryService.GetAsync(id);
-            if (category is null)
+            if (result.ErrorType == ErrorType.NotFound)
             {
                 return NotFound();
             }
 
-            await _categoryService.DeleteAsync(id);
+            if (result.ErrorType == ErrorType.Validation)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
 
             return NoContent();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"An error ocurred when deleting the category {id}");
-            return StatusCode(500, new
-            {
-                success = false,
-                message = $"An error ocurred when deleting the category {id}"
-            });
+            _logger.LogError(ex, $"Error al actualizar la información: {ex.Message}");
+            return ServerError();
         }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var result = await _categoryService.DeleteAsync(id);
+            if (result.ErrorType == ErrorType.NotFound)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error al eliminar la información: {ex.Message}");
+            return ServerError();
+        }
+    }
+
+    private ObjectResult ServerError()
+    {
+        return StatusCode(500, new
+        {
+            success = false,
+            message = $"Error en el servidor, contactar al administrador del sitio"
+        });
     }
 }

@@ -1,7 +1,10 @@
 ﻿namespace OnlineShopping.Api.Services;
 
+using System.Threading.Tasks;
 using Domain.Catalog.Entities;
 using Domain.Catalog.Interfaces;
+using OnlineShopping.Api.Interfaces;
+using OnlineShopping.Domain.Catalog;
 
 public class CategoryService : ICategoryService
 {
@@ -15,15 +18,63 @@ public class CategoryService : ICategoryService
     public async Task<List<Category>> GetAllAsync() =>
         await _categoryRepository.GetAllAsync() ?? new List<Category>();
 
-    public async Task<Category?> GetAsync(int categoryId) =>
-        await _categoryRepository.GetAsync(categoryId);
+    public async Task<OperationResult> AddAsync(Category category)
+    {
+        try
+        {
+            var newCategory = new Category(category.Name);
+            newCategory.SetParentCategory(category.ParentCategoryId);
+            newCategory.SetImage(category.Image);
 
-    public async Task AddAsync(Category newCategory) =>
-        await _categoryRepository.AddAsync(newCategory);
+            await _categoryRepository.AddAsync(newCategory);
+            await _categoryRepository.SaveChangesAsync();
 
-    public async Task UpdateAsync(int id, Category category) =>
-        await _categoryRepository.UpdateAsync(id, category);
+            return OperationResult.Success();
+        }
+        catch (DomainException ex)
+        {
+            return OperationResult.Failure(ex.Message, ErrorType.Validation);
+        }
 
-    public async Task DeleteAsync(int id) =>
-        await _categoryRepository.RemoveAsync(id);
+    }
+
+    public async Task<OperationResult> UpdateAsync(int id, Category cat)
+    {
+        var existingCategory = await _categoryRepository.GetAsync(id);
+        if (existingCategory == null)
+        {
+            return OperationResult.NotFound($"Categoría con ID {id} no encontrada.");
+        }
+
+        try
+        {
+            existingCategory.Update(cat.Name);
+            existingCategory.SetParentCategory(cat.ParentCategoryId);
+            existingCategory.SetImage(cat.Image);
+
+            await _categoryRepository.SaveChangesAsync();
+
+            return OperationResult.Success();
+        }
+        catch (DomainException ex)
+        {
+            return OperationResult.Failure(ex.Message, ErrorType.Validation);
+        }
+    }
+
+    public async Task<OperationResult> DeleteAsync(int id)
+    {
+        var existingCategory = await _categoryRepository.GetAsync(id);
+        
+        if (existingCategory is null)
+        {
+            return OperationResult.NotFound($"Categoría con ID {id} no encontrada.");
+        }
+
+        _categoryRepository.Remove(existingCategory);
+        await _categoryRepository.SaveChangesAsync();
+
+        return OperationResult.Success();
+    }
+
 }
