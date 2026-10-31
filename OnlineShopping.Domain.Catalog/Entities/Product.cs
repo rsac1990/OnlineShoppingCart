@@ -18,16 +18,57 @@ public class Product : Entity
         
     }
 
-    public Product(string name, Category category, decimal price, int amount)
+    public Product(string name, int categoryId, decimal price, int amount)
+    {
+        ValidateProductInfo(name, categoryId, price, amount);
+
+        Name = name;
+        CategoryId = categoryId;
+        Price = price;
+        Amount = amount;
+    }
+
+    public void SetDescription(string? description)
+    {
+        if (string.IsNullOrEmpty( description))
+        {
+            return;
+        }
+
+        var sanitizer = new HtmlSanitizer();
+        Description = sanitizer.Sanitize(description);
+    }
+
+    public void SetImage(string? image)
+    {
+        if (string.IsNullOrEmpty(image))
+        {
+            return;
+        }
+
+        if (!EntityHelper.IsValidImageUrl(image))
+        {
+            throw new DomainException("La URL de la imagen no es válida.");
+        }
+
+        Image = image;
+    }
+
+    public void Update(string name, int categoryId, decimal price, int amount)
+    {
+        ValidateProductInfo(name, categoryId, price, amount);
+
+        Name = name;
+        CategoryId = categoryId;
+        Price = price;
+        Amount = amount;
+    }
+
+    private static void ValidateProductInfo(string name, int categoryId, decimal price, int amount)
     {
         if (string.IsNullOrEmpty(name) || name.Length > 50)
         {
             throw new DomainException("Nombre inválido, debe tener máximo 50 caracteres");
-        }
-
-        if (category is null)
-        {
-            throw new DomainException("La categoria es obligatoria");
         }
 
         if (price < 0)
@@ -35,31 +76,9 @@ public class Product : Entity
             throw new DomainException("El precio no puede ser negativo");
         }
 
-        if (amount <= 0)
+        if (amount < 0) // (Note: depending on business logic, maybe amount can be 0?)
         {
             throw new DomainException("La cantidad no puede ser negativa");
         }
-
-        Name = name;
-        Category = category;
-        CategoryId = category.Id;
-        Price = price;
-        Amount = amount;
-    }
-
-    public void SetDescription(string description)
-    {
-        var sanitizer = new HtmlSanitizer();
-        Description = sanitizer.Sanitize(description);
-    }
-
-    public void SetImage(string image)
-    {
-        if (!EntityHelper.IsValidImageUrl(image))
-        {
-            throw new DomainException("La URL de la imagen no es válida.");
-        }
-
-        Image = image;
     }
 }

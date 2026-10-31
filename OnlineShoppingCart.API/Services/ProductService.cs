@@ -1,7 +1,9 @@
-﻿namespace OnlineShopping.Domain.Catalog.Services;
+﻿namespace OnlineShopping.Api.Services;
 
+using Domain.Catalog;
 using Domain.Catalog.Entities;
 using Domain.Catalog.Interfaces;
+using Interfaces;
 
 public class ProductService : IProductService
 {
@@ -13,17 +15,64 @@ public class ProductService : IProductService
     }
 
     public async Task<List<Product>> GetAllAsync() =>
-        await _productRepository.GetAllAsync() ?? new List<Product>();
+       await _productRepository.GetAllAsync() ?? new List<Product>();
 
-    public async Task<Product?> GetAsync(int id) =>
-        await _productRepository.GetAsync(id);
+    public async Task<OperationResult> AddAsync(Product product)
+    {
+        try
+        {
+            var newProduct = new Product(product.Name, product.CategoryId, product.Price, product.Amount);
+            newProduct.SetImage(product.Image);
+            newProduct.SetDescription(product.Description);
 
-    public async Task AddAsync(Product newProduct) =>
-        await _productRepository.AddAsync(newProduct);
+            await _productRepository.AddAsync(newProduct);
+            await _productRepository.SaveChangesAsync();
 
-    public async Task UpdateAsync(int id, Product product) =>
-        await _productRepository.UpdateAsync(id, product);
+            return OperationResult.Success();
+        }
+        catch (DomainException ex)
+        {
+            return OperationResult.Failure(ex.Message, ErrorType.Validation);
+        }
 
-    public async Task DeleteAsync(int id) =>
-        await _productRepository.RemoveAsync(id);
+    }
+
+    public async Task<OperationResult> UpdateAsync(int id, Product prod)
+    {
+        var existingProduct = await _productRepository.GetAsync(id);
+        if (existingProduct == null)
+        {
+            return OperationResult.NotFound($"Producto con ID {id} no encontrado.");
+        }
+
+        try
+        {
+            existingProduct.Update(prod.Name, prod.CategoryId, prod.Price, prod.Amount);
+            existingProduct.SetDescription(prod.Description);
+            existingProduct.SetImage(prod.Image);
+
+            await _productRepository.SaveChangesAsync();
+
+            return OperationResult.Success();
+        }
+        catch (DomainException ex)
+        {
+            return OperationResult.Failure(ex.Message, ErrorType.Validation);
+        }
+    }
+
+    public async Task<OperationResult> DeleteAsync(int id)
+    {
+        var existingProduct = await _productRepository.GetAsync(id);
+
+        if (existingProduct is null)
+        {
+            return OperationResult.NotFound($"Producto con ID {id} no encontrado.");
+        }
+
+        _productRepository.Remove(existingProduct);
+        await _productRepository.SaveChangesAsync();
+
+        return OperationResult.Success();
+    }
 }
