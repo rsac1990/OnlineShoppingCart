@@ -1,6 +1,6 @@
 ﻿namespace OnlineShopping.Api.Controllers;
 
-using Domain.Catalog.Entities;
+using Dtos;
 using Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +18,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetList()
+    public async Task<ActionResult<IEnumerable<ProductDto>>> GetList()
     {
         try
         {
@@ -33,7 +33,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] Product product)
+    public async Task<IActionResult> Add([FromBody] ProductDto product)
     {
         try
         {
@@ -54,7 +54,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, Product product)
+    public async Task<IActionResult> Update(int id, ProductDto product)
     {
         try
         {

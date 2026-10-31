@@ -5,7 +5,7 @@ using Domain.Catalog.Entities;
 using Domain.Catalog.Interfaces;
 using Interfaces;
 using Dtos;
-using OnlineShopping.Api.Extensions;
+using Extensions;
 
 public class CategoryService : ICategoryService
 {

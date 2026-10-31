@@ -1,11 +1,11 @@
 ﻿namespace OnlineShopping.Api.Interfaces;
 
-using Domain.Catalog.Entities;
+using Dtos;
 
 public interface IProductService
 {
-    Task<List<Product>> GetAllAsync();
-    Task<OperationResult> AddAsync(Product newProduct);
-    Task<OperationResult> UpdateAsync(int id, Product product);
+    Task<List<ProductDto>> GetAllAsync();
+    Task<OperationResult> AddAsync(ProductDto newProduct);
+    Task<OperationResult> UpdateAsync(int id, ProductDto product);
     Task<OperationResult> DeleteAsync(int id);
 }

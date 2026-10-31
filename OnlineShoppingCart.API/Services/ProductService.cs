@@ -3,7 +3,9 @@
 using Domain.Catalog;
 using Domain.Catalog.Entities;
 using Domain.Catalog.Interfaces;
+using Dtos;
 using Interfaces;
+using Extensions;
 
 public class ProductService : IProductService
 {
@@ -14,16 +16,23 @@ public class ProductService : IProductService
         _productRepository = productRepository;
     }
 
-    public async Task<List<Product>> GetAllAsync() =>
-       await _productRepository.GetAllAsync() ?? new List<Product>();
+    public async Task<List<ProductDto>> GetAllAsync()
+    {
+        var products = await _productRepository.GetAllAsync();
+        return products.ToDtoList().ToList() ?? new List<ProductDto>();
+    }
 
-    public async Task<OperationResult> AddAsync(Product product)
+    public async Task<OperationResult> AddAsync(ProductDto productDto)
     {
         try
         {
-            var newProduct = new Product(product.Name, product.CategoryId, product.Price, product.Amount);
-            newProduct.SetImage(product.Image);
-            newProduct.SetDescription(product.Description);
+            var newProduct = new Product(productDto.Name,
+                                            productDto.CategoryId,
+                                            productDto.Price,
+                                            productDto.Amount);
+
+            newProduct.SetImage(productDto.Image);
+            newProduct.SetDescription(productDto.Description);
 
             await _productRepository.AddAsync(newProduct);
             await _productRepository.SaveChangesAsync();
@@ -37,7 +46,7 @@ public class ProductService : IProductService
 
     }
 
-    public async Task<OperationResult> UpdateAsync(int id, Product prod)
+    public async Task<OperationResult> UpdateAsync(int id, ProductDto productDto)
     {
         var existingProduct = await _productRepository.GetAsync(id);
         if (existingProduct == null)
@@ -47,9 +56,13 @@ public class ProductService : IProductService
 
         try
         {
-            existingProduct.Update(prod.Name, prod.CategoryId, prod.Price, prod.Amount);
-            existingProduct.SetDescription(prod.Description);
-            existingProduct.SetImage(prod.Image);
+            existingProduct.Update(productDto.Name,
+                                   productDto.CategoryId,
+                                   productDto.Price,
+                                   productDto.Amount);
+
+            existingProduct.SetDescription(productDto.Description);
+            existingProduct.SetImage(productDto.Image);
 
             await _productRepository.SaveChangesAsync();
 
