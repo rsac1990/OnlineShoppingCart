@@ -1,6 +1,5 @@
 ﻿namespace OnlineShopping.Api.Interfaces;
 
-using Domain.Catalog.Entities;
 using Dtos;
 
 public interface ICategoryService

@@ -23,7 +23,7 @@ public class CartRepository : ICartRepository
     public async Task UpdateAsync(Cart cart)
     {
         var filter = Builders<Cart>.Filter.Eq(c => c.Id, cart.Id);
-        var options = new ReplaceOptions { IsUpsert = false }; 
+        var options = new ReplaceOptions { IsUpsert = true }; 
 
         await _context.Carts.ReplaceOneAsync(filter, cart, options);
     }

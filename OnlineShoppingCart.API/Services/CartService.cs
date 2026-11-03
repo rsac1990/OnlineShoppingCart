@@ -1,7 +1,9 @@
 ﻿namespace OnlineShopping.Api.Services;
 
+using Domain.Cart;
 using Domain.Cart.Business.Entities;
 using Domain.Cart.Business.Interfaces;
+using Interfaces;
 
 public class CartService : ICartService
 {
@@ -12,37 +14,44 @@ public class CartService : ICartService
         _cartRepository = cartRepository;
     }
 
-    public async Task<List<Item>> GetItems(int cartId)
+    public async Task<Cart>? GetAsync(string id)
     {
-        var cart = await _cartRepository.GetByIdAsync(cartId);
-        return cart?.Items.ToList() ?? new List<Item>();
+        return await _cartRepository.GetByIdAsync(id);
     }
 
-    public async Task<(bool Success, string ErrorMessage)> AddItemAsync(int cartId, Item newItem)
+    public async Task<OperationResult> AddItemAsync(string cartId, Item newItem)
     {
-        var cart = await _cartRepository.GetByIdAsync(cartId);
-        if (cart == null)
+        try
         {
-            return (false, "Carrito no encontrado");
+            var cart = await _cartRepository.GetByIdAsync(cartId);
+            if (cart is null)
+            {
+                cart = new Cart(cartId);
+            }
+
+            cart.AddItem(newItem);
+
+            await _cartRepository.UpdateAsync(cart);
+            return OperationResult.Success();
         }
-
-        cart.AddItem(newItem);
-
-        await _cartRepository.UpdateAsync(cart);
-        return (true, string.Empty);
+        catch (DomainException ex)
+        {
+            return OperationResult.Failure(ex.Message, ErrorType.Validation);
+        }
     }
 
-    public async Task<(bool Success, string ErrorMessage)> RemoveItem(int cartId, int itemId)
+    public async Task<OperationResult> RemoveItem(string cartId, int itemId)
     {
         var cart = await _cartRepository.GetByIdAsync(cartId);
-        if (cart == null)
+        if (cart is null)
         {
-            return (false, "Carrito no encontrado");
+            return OperationResult.NotFound($"Carrito {cartId} no encontrado");
         }
 
         cart.RemoveItem(itemId);
 
         await _cartRepository.UpdateAsync(cart);
-        return (true, string.Empty);
+        return OperationResult.Success();
     }
+
 }
