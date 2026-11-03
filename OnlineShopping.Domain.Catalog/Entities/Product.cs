@@ -71,6 +71,11 @@ public class Product : Entity
             throw new DomainException("Nombre inválido, debe tener máximo 50 caracteres");
         }
 
+        if (categoryId <= 0)
+        {
+            throw new DomainException("La categoria es obligatoria");
+        }
+
         if (price < 0)
         {
             throw new DomainException("El precio no puede ser negativo");
