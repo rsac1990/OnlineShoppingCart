@@ -1,4 +1,4 @@
-namespace TestProject.Catalog.UnitTests.Entities;
+namespace TestProject.UnitTests.Catalog.Entities;
 
 using FluentAssertions;
 using NUnit.Framework;

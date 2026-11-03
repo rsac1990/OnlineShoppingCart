@@ -26,10 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\OnlineShopping.Data.Catalog\OnlineShopping.Data.Catalog.csproj" />
     <ProjectReference Include="..\OnlineShopping.Domain.Cart\OnlineShopping.Domain.Cart.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Api\" />
+    <ProjectReference Include="..\OnlineShoppingCart.API\OnlineShopping.Api.csproj" />
   </ItemGroup>
 
 </Project>

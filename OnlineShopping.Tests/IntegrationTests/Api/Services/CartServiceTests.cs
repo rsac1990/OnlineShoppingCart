@@ -1,12 +1,12 @@
-﻿namespace TestProject.Cart.IntegrationTests;
+﻿namespace TestProject.IntegrationTests.Api.Services;
 
 using System.Threading.Tasks;
 using FluentAssertions;
 using Mongo2Go;
 using MongoDB.Driver;
 using NUnit.Framework;
+using OnlineShopping.Api.Services;
 using OnlineShopping.Domain.Cart.Business.Entities;
-using OnlineShopping.Domain.Cart.Business.Services;
 using OnlineShopping.Domain.Cart.Data;
 using OnlineShopping.Domain.Cart.Data.Repositories;
 
@@ -26,7 +26,7 @@ public class CartServiceTests
     {
         _runner = MongoDbRunner.Start();
 
-       _dbContext = new DBContext(_runner.ConnectionString, "OnlineShoppingTestDb");
+        _dbContext = new DBContext(_runner.ConnectionString, "OnlineShoppingTestDb");
         _cartRepository = new CartRepository(_dbContext);
         _cartService = new CartService(_cartRepository);
 
@@ -70,7 +70,7 @@ public class CartServiceTests
     [Test]
     public async Task GetItems_ShouldGETItemsFromExistingCart()
     {
-        var cart= new Cart(_testCartId);
+        var cart = new Cart(_testCartId);
         cart.AddItem(_cartItem);
 
         await _dbContext.Carts.InsertOneAsync(cart);
