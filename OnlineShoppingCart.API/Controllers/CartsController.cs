@@ -1,11 +1,14 @@
 namespace OnlineShopping.Api.Controllers;
 
+using Asp.Versioning;
 using Domain.Cart.Business.Entities;
 using Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("[controller]")]
+[ApiVersion("1.0")]
+[ApiVersion("2.0")]
+[Route("v{version:apiVersion}/products")]
 public class CartsController : ControllerBase
 {
     private readonly ICartService _cartService;
@@ -18,7 +21,8 @@ public class CartsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<Cart>> Get(string id)
+    [MapToApiVersion("1.0")]
+    public async Task<ActionResult<Cart>> GetV1(string id)
     {
         try
         {
