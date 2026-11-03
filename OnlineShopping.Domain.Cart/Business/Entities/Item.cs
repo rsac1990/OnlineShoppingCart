@@ -7,16 +7,16 @@ public class Item : Entity
     public decimal Price { get; set; }
     public int Quantity { get; set; }
 
-    public Item(int id, string name, ItemImage? image, decimal price, int quantity)
+    public Item(string id, string name, ItemImage? image, decimal price, int quantity)
     {
-        if (id <= 0)
-            throw new ArgumentException("El id del item es obligatorio", nameof(id));
+        if (string.IsNullOrEmpty(id))
+             throw new DomainException("El id del item es obligatorio");
 
         if (price < 0)
-            throw new ArgumentException("El precio no puede ser negativo", nameof(price));
+             throw new DomainException("El precio no puede ser negativo");
 
         if (quantity < 0)
-            throw new ArgumentException("La cantidad no puede ser negativa", nameof(quantity));
+             throw new DomainException("La cantidad no puede ser negativa");
 
         Id = id;
         Name = name;

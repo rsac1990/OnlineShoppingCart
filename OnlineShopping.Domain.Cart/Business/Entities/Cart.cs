@@ -8,10 +8,10 @@ public class Cart : Entity
 
     public Cart() { }
 
-    public Cart(int id)
+    public Cart(string id)
     {
-        if (id <= 0)
-            throw new ArgumentException("El id del carrito es obligatorio", nameof(id));
+        if (string.IsNullOrEmpty(id))
+             throw new DomainException("El id del carrito es obligatorio", nameof(id));
 
         Id = id;
     }
@@ -33,7 +33,7 @@ public class Cart : Entity
         }
     }
 
-    public void RemoveItem(int itemId)
+    public void RemoveItem(string itemId)
     {
         var item = _items.FirstOrDefault(i => i.Id == itemId);
         if (item != null)
