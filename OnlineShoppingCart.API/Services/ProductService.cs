@@ -9,17 +9,30 @@ using Extensions;
 
 public class ProductService : IProductService
 {
-    private IRepository<Product> _productRepository;
+    private IProductRepository _productRepository;
 
-    public ProductService(IRepository<Product> productRepository)
+    public ProductService(IProductRepository productRepository)
     {
         _productRepository = productRepository;
     }
 
-    public async Task<List<ProductDto>> GetAllAsync()
-    {
-        var products = await _productRepository.GetAllAsync();
-        return products.ToDtoList().ToList() ?? new List<ProductDto>();
+    public async Task<PagedResult<ProductDto>> GetListAsync(ProductParametersDto parameters)
+    {        
+        var (items, totalCount) = await _productRepository.GetPagedListAsync(
+            parameters.PageNumber,
+            parameters.PageSize,
+            parameters.CategoryId
+        );
+
+        var productDtos = items.ToDtoList().ToList() ?? new List<ProductDto>();
+
+        return new PagedResult<ProductDto>
+        {
+            Items = productDtos,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<OperationResult> AddAsync(ProductDto productDto)
