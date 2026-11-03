@@ -1,7 +1,7 @@
 ﻿namespace OnlineShopping.Data.Catalog;
 
+using Domain.Catalog.Entities;
 using Microsoft.EntityFrameworkCore;
-using OnlineShopping.Domain.Catalog.Entities;
 
 public class AppDbContext : DbContext
 {

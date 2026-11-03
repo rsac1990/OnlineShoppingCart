@@ -1,4 +1,4 @@
-namespace OnlineShopping.Tests.OnlineShopping.Domain.Catalog.UnitTests.Entities;
+namespace TestProject.UnitTests.Catalog.Entities;
 
 using FluentAssertions;
 using NUnit.Framework;
@@ -8,22 +8,21 @@ using OnlineShopping.Domain.Catalog.Entities;
 [TestFixture]
 public class ProductTests
 {
-    private Category _category;
+    private int _categoryId;
     private Product _product;
 
     [SetUp]
     public void SetUp()
     {
-        _category = new Category("Electronics");
-        _product = new Product("Laptop", _category, 1500, 10);
+       _categoryId = 1; // Assign an ID for testing purposes
+        _product = new Product("Laptop", _categoryId, 1500, 10);
     }
 
     [Test]
     public void Constructor_ShouldCreateProduct_WhenDataIsValid()
     {
         _product.Name.Should().Be("Laptop");
-        _product.Category.Should().Be(_category);
-        _product.CategoryId.Should().Be(_category.Id);
+        _product.CategoryId.Should().Be(_categoryId);
         _product.Price.Should().Be(1500);
         _product.Amount.Should().Be(10);
         _product.Description.Should().BeNull();
@@ -34,16 +33,16 @@ public class ProductTests
     [TestCase("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
     public void Constructor_ShouldThrowDomainException_WhenNameIsInvalid(string invalidName)
     {
-        var act = () => new Product(invalidName, _category, 100, 5);
+        var act = () => new Product(invalidName, _categoryId, 100, 5);
 
         act.Should().Throw<DomainException>()
             .WithMessage("Nombre inválido, debe tener máximo 50 caracteres");
     }
 
     [Test]
-    public void Constructor_ShouldThrowDomainException_WhenCategoryIsNull()
+    public void Constructor_ShouldThrowDomainException_WhenCategoryIsInvalid()
     {
-        var act = () => new Product("Laptop", null!, 100, 5);
+        var act = () => new Product("Laptop", 0, 100, 5);
 
         act.Should().Throw<DomainException>()
             .WithMessage("La categoria es obligatoria");
@@ -52,7 +51,7 @@ public class ProductTests
     [Test]
     public void Constructor_ShouldThrowDomainException_WhenPriceIsNegative()
     {
-        var act = () => new Product("Laptop", _category, -1, 5);
+        var act = () => new Product("Laptop", _categoryId, -1, 5);
 
         act.Should().Throw<DomainException>()
             .WithMessage("El precio no puede ser negativo");
@@ -61,7 +60,7 @@ public class ProductTests
     [Test]
     public void Constructor_ShouldThrowDomainException_WhenAmountIsNegative()
     {
-        var act = () => new Product("Laptop", _category, 100, -1);
+        var act = () => new Product("Laptop", _categoryId, 100, -1);
 
         act.Should().Throw<DomainException>()
             .WithMessage("La cantidad no puede ser negativa");

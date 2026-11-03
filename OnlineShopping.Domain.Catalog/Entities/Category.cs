@@ -24,8 +24,13 @@ public class Category : Entity
         Name = name;
     }
 
-    public void SetImage(string image)
+    public void SetImage(string? image)
     {
+        if (image is null)
+        {
+            return;
+        }
+
         if (!EntityHelper.IsValidImageUrl(image))
         {
             throw new DomainException("La URL de la imagen no es válida.");
@@ -34,8 +39,18 @@ public class Category : Entity
         Image = image;
     }
 
-    public void SetParentCategory(Category parentCategory)
+    public void SetParentCategory(int? parentCategoryId)
     {
-        ParentCategory = parentCategory;
+        if (parentCategoryId is null)
+        {
+            return;
+        }
+
+        ParentCategoryId = parentCategoryId;
+    }
+
+    public void Update(string name)
+    {       
+        Name = name;
     }
 }
