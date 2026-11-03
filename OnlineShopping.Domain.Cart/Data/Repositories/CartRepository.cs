@@ -1,8 +1,8 @@
 ﻿namespace OnlineShopping.Domain.Cart.Data.Repositories;
 
 using MongoDB.Driver;
-using OnlineShopping.Domain.Cart.Business.Entities;
-using OnlineShopping.Domain.Cart.Business.Interfaces;
+using Business.Entities;
+using Business.Interfaces;
 
 public class CartRepository : ICartRepository
 {
@@ -13,7 +13,7 @@ public class CartRepository : ICartRepository
         _context = context;
     }
 
-    public async Task<Cart> GetByIdAsync(int cartId)
+    public async Task<Cart> GetByIdAsync(string cartId)
     {
         return await _context.Carts
             .Find(c => c.Id == cartId)

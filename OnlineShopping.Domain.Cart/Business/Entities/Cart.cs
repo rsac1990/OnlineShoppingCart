@@ -11,7 +11,7 @@ public class Cart : Entity
     public Cart(string id)
     {
         if (string.IsNullOrEmpty(id))
-             throw new DomainException("El id del carrito es obligatorio", nameof(id));
+             throw new DomainException("El id del carrito es obligatorio");
 
         Id = id;
     }
@@ -19,7 +19,7 @@ public class Cart : Entity
     public void AddItem(Item item)
     {
         if (item is null)
-            throw new ArgumentNullException("El item es obligatorio", nameof(item));
+            throw new DomainException("El item es obligatorio");
 
         var existingItem = _items.FirstOrDefault(i => i.Id == item.Id);
 
