@@ -1,7 +1,8 @@
 ﻿namespace OnlineShopping.Domain.Cart.Business.Entities;
 
-public class Cart : Entity
+public class Cart
 {
+    public string Id { get; protected set; }
     private List<Item> _items = new();
 
     public IReadOnlyCollection<Item> Items => _items.AsReadOnly();
@@ -25,7 +26,7 @@ public class Cart : Entity
 
         if (existingItem != null)
         {
-            existingItem.Quantity += item.Quantity;
+            existingItem.UpdateQuantity(item.Quantity);
         }
         else
         {
@@ -33,7 +34,7 @@ public class Cart : Entity
         }
     }
 
-    public void RemoveItem(string itemId)
+    public void RemoveItem(int itemId)
     {
         var item = _items.FirstOrDefault(i => i.Id == itemId);
         if (item != null)
