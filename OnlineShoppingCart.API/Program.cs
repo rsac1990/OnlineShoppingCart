@@ -1,7 +1,9 @@
 using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Mongo2Go;
+using OnlineShopping.Api;
 using OnlineShopping.Api.Interfaces;
 using OnlineShopping.Api.Services;
 using OnlineShopping.Data.Catalog;
@@ -27,10 +29,12 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 // Create and open a persistent SQLite in-memory connection
 var sqliteConnection = new SqliteConnection("DataSource=:memory:");
@@ -75,7 +79,20 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        // Obtener el proveedor de descripciones de versión creado por el ApiExplorer
+        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+        // Crear dinámicamente un endpoint en el menú desplegable de Swagger por cada versión detectada
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                description.GroupName.ToUpperInvariant()
+            );
+        }
+    });
 }
 
 app.UseHttpsRedirection();
