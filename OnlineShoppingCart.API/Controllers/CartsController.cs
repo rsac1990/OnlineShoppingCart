@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [ApiVersion("1.0")]
 [ApiVersion("2.0")]
-[Route("v{version:apiVersion}/products")]
+[Route("v{version:apiVersion}/Carts")]
 public class CartsController : ControllerBase
 {
     private readonly ICartService _cartService;
@@ -20,7 +20,7 @@ public class CartsController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
+    [HttpGet("{id}")]
     [MapToApiVersion("1.0")]
     public async Task<ActionResult<Cart>> GetV1(string id)
     {
@@ -42,7 +42,32 @@ public class CartsController : ControllerBase
         }
     }
 
-    [HttpPost("{id}")]
+
+    [HttpGet("{id}")]
+    [MapToApiVersion("2.0")]
+    public async Task<ActionResult<List<Item>>> GetV2(string id)
+    {
+        try
+        {
+            var cart = await _cartService.GetAsync(id);
+
+            if (cart is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(cart.Items);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error al obtener la información: {ex.Message}");
+            return ServerError();
+        }
+    }
+
+    [HttpPost("{cartId}/items")]
+    [MapToApiVersion("1.0")]
+    [MapToApiVersion("2.0")]
     public async Task<IActionResult> AddItem(string cartId, [FromBody] Item item)
     {
         try
@@ -63,7 +88,9 @@ public class CartsController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{cartId}/items/{itemId}")]
+    [MapToApiVersion("1.0")]
+    [MapToApiVersion("2.0")]
     public async Task<IActionResult> DeleteItem(string cartId, int itemId)
     {
         try
