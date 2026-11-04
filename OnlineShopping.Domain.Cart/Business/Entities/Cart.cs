@@ -1,17 +1,18 @@
 ﻿namespace OnlineShopping.Domain.Cart.Business.Entities;
 
-public class Cart : Entity
+public class Cart
 {
+    public string Id { get; protected set; }
     private List<Item> _items = new();
 
     public IReadOnlyCollection<Item> Items => _items.AsReadOnly();
 
     public Cart() { }
 
-    public Cart(int id)
+    public Cart(string id)
     {
-        if (id <= 0)
-            throw new ArgumentException("El id del carrito es obligatorio", nameof(id));
+        if (string.IsNullOrEmpty(id))
+             throw new DomainException("El id del carrito es obligatorio");
 
         Id = id;
     }
@@ -19,13 +20,13 @@ public class Cart : Entity
     public void AddItem(Item item)
     {
         if (item is null)
-            throw new ArgumentNullException("El item es obligatorio", nameof(item));
+            throw new DomainException("El item es obligatorio");
 
         var existingItem = _items.FirstOrDefault(i => i.Id == item.Id);
 
         if (existingItem != null)
         {
-            existingItem.Quantity += item.Quantity;
+            existingItem.UpdateQuantity(item.Quantity);
         }
         else
         {

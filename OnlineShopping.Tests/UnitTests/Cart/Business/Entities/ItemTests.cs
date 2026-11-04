@@ -2,6 +2,7 @@ namespace TestProject.UnitTests.Cart.Business.Entities;
 
 using FluentAssertions;
 using NUnit.Framework;
+using OnlineShopping.Domain.Cart;
 using OnlineShopping.Domain.Cart.Business.Entities;
 
 [TestFixture]
@@ -28,7 +29,7 @@ public class ItemTests
     [Test]
     [TestCase(0)]
     [TestCase(-1)]
-    public void Constructor_WithInvalidId_ShouldThrowException(int invalidId)
+    public void Constructor_WithInvalidId_ShouldThrowDomainException(int invalidId)
     {
         string name = "Laptop Gamer";
         var image = new ItemImage("https://example.com/image.jpg", "Laptop frontal");
@@ -37,9 +38,8 @@ public class ItemTests
 
         Action act = () => new Item(invalidId, name, image, price, quantity);
 
-        act.Should().Throw<ArgumentException>()
-           .WithMessage("*El id del item es obligatorio*")
-           .WithParameterName("id");
+        act.Should().Throw<DomainException>()
+           .WithMessage("*El id del item es obligatorio*");
     }
 
     [Test]
@@ -53,9 +53,8 @@ public class ItemTests
 
         Action act = () => new Item(id, name, image, price, quantity);
 
-        act.Should().Throw<ArgumentException>()
-           .WithMessage("*El precio no puede ser negativo*")
-           .WithParameterName("price");
+        act.Should().Throw<DomainException>()
+           .WithMessage("*El precio no puede ser negativo*");
     }
 
     [Test]
@@ -69,8 +68,7 @@ public class ItemTests
 
         Action act = () => new Item(id, name, image, price, quantity);
 
-        act.Should().Throw<ArgumentException>()
-           .WithMessage("*La cantidad no puede ser negativa*")
-           .WithParameterName("quantity");
+        act.Should().Throw<DomainException>()
+           .WithMessage("*La cantidad no puede ser negativa*");
     }
 }

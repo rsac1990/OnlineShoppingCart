@@ -1,8 +1,8 @@
 ﻿namespace OnlineShopping.Domain.Cart.Data;
 
-using MongoDB.Driver;
-using OnlineShopping.Domain.Cart.Business.Entities;
+using Business.Entities;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 
 public class DBContext
 {
@@ -10,21 +10,17 @@ public class DBContext
 
     static DBContext()
     {
-        BsonClassMap.RegisterClassMap<Entity>(cm =>
-        {
-            cm.AutoMap();
-            cm.MapIdProperty(e => e.Id);
-        });
-
         BsonClassMap.RegisterClassMap<Cart>(cm =>
         {
             cm.AutoMap();
+            cm.MapIdProperty(c => c.Id);
             cm.MapField("_items").SetElementName("Items");
         });
 
         BsonClassMap.RegisterClassMap<Item>(cm =>
         {
             cm.AutoMap();
+            cm.MapIdProperty(i => i.Id);
         });
     }
 

@@ -19,7 +19,7 @@ public class CartServiceTests
     private CartService _cartService;
 
     private Item _cartItem;
-    private readonly int _testCartId = 1;
+    private readonly string _testCartId = "1";
 
     [OneTimeSetUp]
     public void GlobalSetUp()
@@ -68,15 +68,16 @@ public class CartServiceTests
     }
 
     [Test]
-    public async Task GetItems_ShouldGETItemsFromExistingCart()
+    public async Task Get_ShouldGETItemsFromExistingCart()
     {
         var cart = new Cart(_testCartId);
         cart.AddItem(_cartItem);
 
         await _dbContext.Carts.InsertOneAsync(cart);
 
-        var cartDbItems = await _cartService.GetItems(_testCartId);
+        var cartDb = await _cartService.GetAsync(_testCartId);
 
+        var cartDbItems= cartDb.Items.ToList();
         cartDbItems[0].Name.Should().Be("Test Product");
         cartDbItems[0].Quantity.Should().Be(2);
         cartDbItems[0].Price.Should().Be(19);
