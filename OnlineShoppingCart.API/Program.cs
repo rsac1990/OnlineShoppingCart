@@ -67,6 +67,8 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 
+builder.Services.AddSingleton<IMessageProducer, RabbitMQMessageProducer>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
