@@ -10,10 +10,12 @@ using Extensions;
 public class ProductService : IProductService
 {
     private IProductRepository _productRepository;
+    private readonly IMessageProducer messageProducer;
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, IMessageProducer messageProducer)
     {
         _productRepository = productRepository;
+        this.messageProducer = messageProducer;
     }
 
     public async Task<PagedResult<ProductDto>> GetListAsync(ProductParametersDto parameters)
@@ -78,13 +80,27 @@ public class ProductService : IProductService
             existingProduct.SetImage(productDto.Image);
 
             await _productRepository.SaveChangesAsync();
-
+            await RaiseEvent(existingProduct);
+            //category name no dbeeria ser mandatorio en el post de product
             return OperationResult.Success();
         }
         catch (DomainException ex)
         {
             return OperationResult.Failure(ex.Message, ErrorType.Validation);
         }
+    }
+
+    private async Task RaiseEvent(Product existingProduct)
+    {
+        var updatedEvent = new ProductUpdatedEvent
+        {
+            Id = existingProduct.Id,
+            Name = existingProduct.Name,
+            Price = existingProduct.Price,
+            ImageUrl = existingProduct.Image
+        };
+
+        await messageProducer.PublishProductUpdatedAsync(updatedEvent);
     }
 
     public async Task<OperationResult> DeleteAsync(int id)
