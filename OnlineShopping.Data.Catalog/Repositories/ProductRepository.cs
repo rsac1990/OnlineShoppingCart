@@ -16,7 +16,7 @@ public class ProductRepository : Repository<Product>, IProductRepository
 
         if (categoryId.HasValue)
         {
-            query = query.Where(p => p.CategoryId == categoryId.Value);
+            query = query.Where(p => p.CategoryId == categoryId.Value).Include(p => p.Category);
         }
 
         var totalCount = await query.CountAsync();
