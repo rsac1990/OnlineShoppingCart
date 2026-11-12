@@ -68,16 +68,25 @@ public class CartSyncBackgroundWorker : BackgroundService
                         using (var scope = _serviceProvider.CreateScope())
                         {
                             var cartService = scope.ServiceProvider.GetRequiredService<ICartService>();
-                            await cartService.UpdateItemAsync(productEvent.Id, productEvent);
+                            var result = await cartService.UpdateItemAsync(productEvent.Id, productEvent);
+
+                            if (result.IsSuccess)
+                            {
+                                context.Accept();
+                            }
+                            else 
+                            {
+                                _logger.LogWarning("Skipping message: {Error}", result.ErrorMessage);
+                                context.Discard();
+                            }
                         }
                     }
-
-                    // 5. Acknowledge/settle the message successfully
-                    context.Accept();
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error processing product update message.");
+                    _logger.LogError(ex, "Error processing product update message.. Retrying...");
+
+                    context.Requeue();
                 }
             })
             .BuildAndStartAsync();
