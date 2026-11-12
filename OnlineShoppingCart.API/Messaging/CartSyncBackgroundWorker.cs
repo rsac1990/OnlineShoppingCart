@@ -15,6 +15,8 @@ public class CartSyncBackgroundWorker : BackgroundService
     private IConnection? _connection;
     private IConsumer? _consumer;
 
+    private const string queueName = "product-updates-queue";
+
     public CartSyncBackgroundWorker(IServiceProvider serviceProvider, ILogger<CartSyncBackgroundWorker> logger)
     {
         _serviceProvider = serviceProvider;
@@ -25,40 +27,15 @@ public class CartSyncBackgroundWorker : BackgroundService
     {
         _logger.LogInformation("CartSyncBackgroundWorker is starting...");
 
-        const string brokerUri = "amqp://guest:guest@localhost:5672/%2f";
-        var settings = ConnectionSettingsBuilder.Create()
-            .Uri(new Uri(brokerUri))
-            .ContainerId("cart-api-consumer")
-            .Build();
+        await ConnectToMessageBroker();
 
-        // 1. Initialize environment and connection
-        _environment = AmqpEnvironment.Create(settings);
-        _connection = await _environment.CreateConnectionAsync();
-
-        string queueName = "product-updates-queue";
-
-        // 2. Ensure the quorum queue exists
-        await _connection.Management()
-            .Queue(queueName)
-            .Type(QueueType.QUORUM)
-            .DeclareAsync();
-
-        // 3. Build and start the consumer using RabbitMQ's official pattern
         _consumer = await _connection.ConsumerBuilder()
             .Queue(queueName)
             .MessageHandler(async (context, message) =>
             {
                 try
                 {
-                    // Extract JSON payload
-                    var bodyBytes = message.Body();
-                    if (bodyBytes == null)
-                    {
-                        return;
-                    }
-
-                    string jsonString = Encoding.UTF8.GetString(bodyBytes);
-                    var productEvent = JsonSerializer.Deserialize<ProductUpdatedEvent>(jsonString);
+                    var productEvent = ExtractMessageContent(message.Body());
 
                     if (productEvent != null)
                     {
@@ -68,13 +45,14 @@ public class CartSyncBackgroundWorker : BackgroundService
                         using (var scope = _serviceProvider.CreateScope())
                         {
                             var cartService = scope.ServiceProvider.GetRequiredService<ICartService>();
+
                             var result = await cartService.UpdateItemAsync(productEvent.Id, productEvent);
 
                             if (result.IsSuccess)
                             {
                                 context.Accept();
                             }
-                            else 
+                            else
                             {
                                 _logger.LogWarning("Skipping message: {Error}", result.ErrorMessage);
                                 context.Discard();
@@ -95,6 +73,33 @@ public class CartSyncBackgroundWorker : BackgroundService
 
         // Keep the background service alive until application shutdown is requested
         await Task.Delay(Timeout.Infinite, stoppingToken);
+    }
+
+    private ProductUpdatedEvent? ExtractMessageContent(byte[] bodyBytes)
+    {
+        if (bodyBytes == null)
+            return null;
+
+        string jsonString = Encoding.UTF8.GetString(bodyBytes);
+        return JsonSerializer.Deserialize<ProductUpdatedEvent>(jsonString);
+    }
+
+    private async Task ConnectToMessageBroker()
+    {
+        const string brokerUri = "amqp://guest:guest@localhost:5672/%2f";
+        var settings = ConnectionSettingsBuilder.Create()
+            .Uri(new Uri(brokerUri))
+            .ContainerId("cart-api-consumer")
+            .Build();
+
+        // 1. Initialize environment and connection
+        _environment = AmqpEnvironment.Create(settings);
+        _connection = await _environment.CreateConnectionAsync();
+
+        await _connection.Management()
+                .Queue(queueName)
+                .Type(QueueType.QUORUM)
+                .DeclareAsync();
     }
 
     // Graceful cleanup when the app stops
