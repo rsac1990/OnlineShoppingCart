@@ -71,6 +71,7 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddSingleton<IMessageProducer, RabbitMQMessageProducer>();
 
 builder.Services.AddHostedService<CartSyncBackgroundWorker>();
+builder.Services.AddHostedService<OutboxProcessorBackgroundWorker>();
 
 var app = builder.Build();
 
