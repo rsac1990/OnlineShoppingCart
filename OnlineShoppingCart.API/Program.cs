@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Mongo2Go;
 using OnlineShopping.Api;
 using OnlineShopping.Api.Interfaces;
+using OnlineShopping.Api.Messaging;
 using OnlineShopping.Api.Services;
 using OnlineShopping.Data.Catalog;
 using OnlineShopping.Data.Catalog.Repositories;
@@ -66,6 +67,11 @@ builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
+
+builder.Services.AddSingleton<IMessageProducer, RabbitMQMessageProducer>();
+
+builder.Services.AddHostedService<CartSyncBackgroundWorker>();
+builder.Services.AddHostedService<OutboxProcessorBackgroundWorker>();
 
 var app = builder.Build();
 

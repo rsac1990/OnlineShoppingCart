@@ -1,24 +1,29 @@
 ﻿namespace OnlineShopping.Api.Services;
 
+using System.Text.Json;
+using Data.Catalog;
+using Data.Catalog.Outbox;
 using Domain.Catalog;
 using Domain.Catalog.Entities;
 using Domain.Catalog.Interfaces;
 using Dtos;
-using Interfaces;
 using Extensions;
+using Interfaces;
 
 public class ProductService : IProductService
 {
-    private IProductRepository _productRepository;
+    private IProductRepository productRepository;
+    private readonly AppDbContext dbContext;
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, AppDbContext dbContext)
     {
-        _productRepository = productRepository;
+        this.productRepository = productRepository;
+        this.dbContext = dbContext;
     }
 
     public async Task<PagedResult<ProductDto>> GetListAsync(ProductParametersDto parameters)
-    {        
-        var (items, totalCount) = await _productRepository.GetPagedListAsync(
+    {
+        var (items, totalCount) = await productRepository.GetPagedListAsync(
             parameters.PageNumber,
             parameters.PageSize,
             parameters.CategoryId
@@ -47,8 +52,8 @@ public class ProductService : IProductService
             newProduct.SetImage(productDto.Image);
             newProduct.SetDescription(productDto.Description);
 
-            await _productRepository.AddAsync(newProduct);
-            await _productRepository.SaveChangesAsync();
+            await productRepository.AddAsync(newProduct);
+            await productRepository.SaveChangesAsync();
 
             return OperationResult.Success();
         }
@@ -61,7 +66,7 @@ public class ProductService : IProductService
 
     public async Task<OperationResult> UpdateAsync(int id, ProductDto productDto)
     {
-        var existingProduct = await _productRepository.GetAsync(id);
+        var existingProduct = await dbContext.Products.FindAsync(id);
         if (existingProduct == null)
         {
             return OperationResult.NotFound($"Producto con ID {id} no encontrado.");
@@ -69,15 +74,12 @@ public class ProductService : IProductService
 
         try
         {
-            existingProduct.Update(productDto.Name,
-                                   productDto.CategoryId,
-                                   productDto.Price,
-                                   productDto.Amount);
+            UpdateExistingProduct(productDto, existingProduct);
 
-            existingProduct.SetDescription(productDto.Description);
-            existingProduct.SetImage(productDto.Image);
+            var outboxMessage = GetOutboxMessage(existingProduct);
 
-            await _productRepository.SaveChangesAsync();
+            await dbContext.OutboxMessages.AddAsync(outboxMessage);
+            await dbContext.SaveChangesAsync();
 
             return OperationResult.Success();
         }
@@ -89,16 +91,45 @@ public class ProductService : IProductService
 
     public async Task<OperationResult> DeleteAsync(int id)
     {
-        var existingProduct = await _productRepository.GetAsync(id);
+        var existingProduct = await productRepository.GetAsync(id);
 
         if (existingProduct is null)
         {
             return OperationResult.NotFound($"Producto con ID {id} no encontrado.");
         }
 
-        _productRepository.Remove(existingProduct);
-        await _productRepository.SaveChangesAsync();
+        productRepository.Remove(existingProduct);
+        await productRepository.SaveChangesAsync();
 
         return OperationResult.Success();
     }
+
+    private static void UpdateExistingProduct(ProductDto productDto, Product existingProduct)
+    {
+        existingProduct.Update(productDto.Name,
+                                           productDto.CategoryId,
+                                           productDto.Price,
+                                           productDto.Amount);
+
+        existingProduct.SetDescription(productDto.Description);
+        existingProduct.SetImage(productDto.Image);
+    }
+
+    private OutboxMessage GetOutboxMessage(Product existingProduct)
+    {
+        var updatedEvent = new ProductUpdatedEvent
+        {
+            Id = existingProduct.Id,
+            Name = existingProduct.Name,
+            Price = existingProduct.Price,
+            ImageUrl = existingProduct.Image
+        };
+        return new OutboxMessage
+        {
+            Type = nameof(ProductUpdatedEvent),
+            Payload = JsonSerializer.Serialize(updatedEvent),
+            OccurredOnUtc = DateTime.UtcNow
+        };
+    }
+
 }
