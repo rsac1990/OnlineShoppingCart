@@ -37,7 +37,7 @@ public class CartsController : ControllerBase
     {
         try
         {
-            var cart = await _cartService.GetAsync(id);
+            var cart = await _cartService.GetByIdAsync(id);
 
             if (cart is null)
             {
@@ -65,7 +65,7 @@ public class CartsController : ControllerBase
     {
         try
         {
-            var cart = await _cartService.GetAsync(id);
+            var cart = await _cartService.GetByIdAsync(id);
 
             if (cart is null)
             {

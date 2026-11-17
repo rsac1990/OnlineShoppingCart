@@ -3,6 +3,7 @@
 using MongoDB.Driver;
 using Business.Entities;
 using Business.Interfaces;
+using MongoDB.Driver.Linq;
 
 public class CartRepository : ICartRepository
 {
@@ -17,6 +18,13 @@ public class CartRepository : ICartRepository
     {
         return await _context.Carts
             .Find(c => c.Id == cartId)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Cart> GetAsync()
+    {
+        return await _context.Carts
+            .AsQueryable()
             .FirstOrDefaultAsync();
     }
 

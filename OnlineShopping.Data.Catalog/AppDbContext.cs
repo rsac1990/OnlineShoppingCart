@@ -2,11 +2,13 @@
 
 using Domain.Catalog.Entities;
 using Microsoft.EntityFrameworkCore;
+using Outbox;
 
 public class AppDbContext : DbContext
 {
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -32,6 +34,15 @@ public class AppDbContext : DbContext
                   .WithMany()
                   .HasForeignKey(p => p.CategoryId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OutboxMessage>(entity =>
+        {
+            entity.ToTable("OutboxMessages");
+
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                  .ValueGeneratedOnAdd();
         });
     }
 }
